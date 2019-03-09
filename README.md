@@ -1,18 +1,8 @@
+
 ## About
+#### A react webapp that syncs your Philips Hue lights with the most prominent colors in the album art for your currently playing Spotify track.
 
-I use the same basic set of stuff in almost all my React projects. So here's my bootstrapped thing for them.
-
-### Notable Dependencies/Features
-* Redux (Application state management)
-* react-router (Single page app with url management)
-* DirectoryNamedWebpackPlugin (A personal pet peeve of mine is using index.js for every component)
-* babel-preset-react-app (Enable all those juicy ES6 features)
-* Concurrent Server and Client in the same project with no configuration bullshit
-* Hot reloading
-* Material UI (God it's so nice)
-* Configured to work by default with the free tier of heroku
-* `pg`, `leaflet` and `react-leaflet` in `package.json` by default
-* A basic component/container CLI generation. `yarn generate --type container|component --name CoolContainer`
+<img src="example-screenshot.png" alt="example-screenshot">
 
 ## Installation
 
@@ -23,13 +13,24 @@ yarn rebuild
 ## Get started
 
 ```bash
-yarn dev
+SPOTIFY_CLIENT_SECRET=***** yarn dev
 ```
 
 In a separate terminal window run
 ```bash
 yarn poll-spotify
 ```
+
+Open up `/common/constants/authorization.js` and change the variables in that file to match your Philips and Spotify config. Note that the `SPOTIFY_CLIENT_SECRET` variable MUST be passed to your app as an environment variable.
+
+Open up `AlbumContainer.js`. You'll see some lines like
+
+```javascript
+    this.setLamp(colors[0].x, colors[0].y, 1);
+    this.setLamp(colors[1].x, colors[1].y, 4);
+```
+
+The second parameter of the `setLamp` function is the lampID who's color will be set. Modify this to suit your needs.
 
 ## Scripts
 | Script | Description |

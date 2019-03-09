@@ -1,13 +1,14 @@
 import fetch from "isomorphic-fetch";
-
+import {
+  PHILIPS_HUB_IP,
+  PHILIPS_HUB_USERNAME
+} from "common/constants/authorization";
 const getLampUrl = lightNumber => {
-  var hubIP = "10.0.0.92";
-  var username = "WZ1wvNs08Lp7Ru4bcVGPF45uPKbOJBoxqggD5wRq";
-  var URL =
+  const URL =
     "http://" +
-    hubIP +
+    PHILIPS_HUB_IP +
     "/api/" +
-    username +
+    PHILIPS_HUB_USERNAME +
     "/lights/" +
     lightNumber +
     "/state";

@@ -9,8 +9,15 @@ import {
 } from './common/constants/urls';
 import {
   SPOTIFY_CLIENT_ID,
-  SPOTIFY_CLIENT_SECRET,
 } from './common/constants/authorization';
+
+const SPOTIFY_CLIENT_SECRET = process.env.SPOTIFY_CLIENT_SECRET;
+
+if (!SPOTIFY_CLIENT_SECRET) {
+  console.log(chalk.red('You MUST provide a SPOTIFY_CLIENT_SECRET key as an environment variable. e.g: "SPOTIFY_CLIENT_SECRET=#### yarn dev"'));
+  console.log(chalk.red('You can get your own SPOTIFY_CLIENT_SECRET key here: https://developer.spotify.com/dashboard/applications. And create an app.'));
+  process.exit(1);
+}
 
 const app = express();
 const port = process.env.PORT || 5001;
