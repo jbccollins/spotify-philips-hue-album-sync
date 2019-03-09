@@ -15,6 +15,7 @@
     "babel-preset-react-app": "^6.1.0",
     "case-sensitive-paths-webpack-plugin": "2.1.2",
     "chalk": "2.4.1",
+    "color-thief": "^2.2.3",
     "connected-react-router": "6.0.0-beta.1",
     "css-loader": "1.0.1",
     "directory-named-webpack-plugin": "4.0.0",

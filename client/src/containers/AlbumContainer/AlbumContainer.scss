@@ -1,0 +1,35 @@
+.AlbumContainer {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    transition: background-color 0.5s ease;
+    .album-wrapper {
+        border-radius: 8px;
+        overflow: hidden;
+    }
+    .album-name, .track-name {
+        text-align: center;
+    }
+    .album-name {
+        font-size: 16px;
+        margin-bottom: 16px;
+    }
+    .track-name {
+        font-size: 24px;
+    }
+    .color-square {
+        width: 50px;
+        height: 50px;
+        border-radius: 8px;
+    }
+    .colors-container {
+        margin-top: 16px;
+        display: flex;
+        justify-content: space-around;
+        padding: 0px 20%;
+    }
+    .content-wrapper {
+        margin: auto;
+        width: 640px;
+    }
+}

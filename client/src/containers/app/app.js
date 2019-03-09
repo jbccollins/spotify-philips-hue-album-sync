@@ -1,33 +1,29 @@
 import React from "react";
 import PropTypes from "prop-types";
-import DemoComponent from "components/DemoComponent";
+import AlbumContainer from "containers/AlbumContainer";
 import { bindActionCreators } from "redux";
 import { connect } from "react-redux";
-import { setDisplayMode } from "actions/controls";
-import { DARK, LIGHT } from "common/constants/theme";
+import { fetchTrack } from "actions/spotify";
 import { withStyles } from "@material-ui/core/styles";
 import "./app.scss";
 
 const styles = {
   root: {
-    backgroundColor: "grey"
+    backgroundColor: "white"
   }
 };
 
 class App extends React.Component {
-  handleDisplayModeChange = () => {
-    const { displayMode, setDisplayMode } = this.props;
-    setDisplayMode(displayMode === LIGHT ? DARK : LIGHT);
-  };
-
+  componentDidMount() {
+    const { fetchTrack } = this.props;
+    fetchTrack();
+    setInterval(fetchTrack, 3000);
+  }
   render() {
-    const { displayMode, classes } = this.props;
+    const { classes } = this.props;
     return (
-      <div className={`App ${displayMode} ${classes.root}`}>
-        <DemoComponent
-          onClick={this.handleDisplayModeChange}
-          theme={displayMode}
-        />
+      <div className={`App ${classes.root}`}>
+        <AlbumContainer />
       </div>
     );
   }
@@ -38,13 +34,13 @@ App.propTypes = {
 };
 
 const mapStateToProps = state => ({
-  displayMode: state.displayMode
+  track: state.track
 });
 
 const mapDispatchToProps = dispatch =>
   bindActionCreators(
     {
-      setDisplayMode
+      fetchTrack
     },
     dispatch
   );
