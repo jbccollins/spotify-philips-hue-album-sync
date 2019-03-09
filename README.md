@@ -26,6 +26,11 @@ yarn rebuild
 yarn dev
 ```
 
+In a separate terminal window run
+```bash
+yarn poll-spotify
+```
+
 ## Scripts
 | Script | Description |
 |---|---|
