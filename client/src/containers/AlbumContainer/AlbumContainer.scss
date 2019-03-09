@@ -6,21 +6,28 @@
     .album-wrapper {
         border-radius: 8px;
         overflow: hidden;
+        border: 1px solid rgba(0, 0, 0, 0.5);
     }
-    .album-name, .track-name {
+    .album-name, .track-name, .artist-name{
         text-align: center;
+    }
+    .artist-name {
+        font-size: 24px;
     }
     .album-name {
         font-size: 16px;
+    }
+    .track-info {
         margin-bottom: 16px;
     }
     .track-name {
-        font-size: 24px;
+        font-size: 40px;
     }
     .color-square {
         width: 50px;
         height: 50px;
         border-radius: 8px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
     }
     .colors-container {
         margin-top: 16px;

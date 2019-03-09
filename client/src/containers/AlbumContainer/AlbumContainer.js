@@ -9,6 +9,11 @@ import "./AlbumContainer.scss";
 
 const colorThief = new ColorThief();
 const numberOfColors = 4;
+function padZero(str, len) {
+  len = len || 2;
+  var zeros = new Array(len).join("0");
+  return (zeros + str).slice(-len);
+}
 
 class AlbumContainer extends React.Component {
   state = {
@@ -25,7 +30,20 @@ class AlbumContainer extends React.Component {
     requestSetLamp(lampData, lampUrl);
   }
 
-  rgbToCssString = ({ r, g, b }) => `rgb(${r}, ${g}, ${b})`;
+  rgbToCssString = ({ r, g, b }, a) => `rgba(${r}, ${g}, ${b}, ${a})`;
+
+  invertColor = ({ r, g, b }, bw) => {
+    if (bw) {
+      // http://stackoverflow.com/a/3943023/112731
+      return r * 0.299 + g * 0.587 + b * 0.114 > 186 ? "#000000" : "#FFFFFF";
+    }
+    // invert color components
+    r = (255 - r).toString(16);
+    g = (255 - g).toString(16);
+    b = (255 - b).toString(16);
+    // pad each with zeros and return
+    return "#" + padZero(r) + padZero(g) + padZero(b);
+  };
 
   getRgb = colorIndex => {
     const r = colorThief.getPalette(this.img, numberOfColors)[colorIndex][0];
@@ -75,20 +93,29 @@ class AlbumContainer extends React.Component {
     const { albumImageUrl, colors } = this.state;
     console.log(colors);
     let backgroundStyle = {};
+    let trackColor = "black";
     if (colors) {
       backgroundStyle = {
         backgroundImage: `radial-gradient(${this.rgbToCssString(
-          colors[1]
-        )}, ${this.rgbToCssString(colors[0])})`
+          colors[1],
+          0.7
+        )}, ${this.rgbToCssString(colors[0], 1)})`
+        //backgroundColor: `${this.rgbToCssString(colors[0], 0.9)}`
       };
+      trackColor = this.invertColor(colors[0], true);
     }
     return (
       <div className="AlbumContainer" style={backgroundStyle}>
         <div className="content-wrapper">
-          {track && <div className="track-name">{track.name}</div>}
-          {track && track.album && (
-            <div className="album-name">{track.album.name}</div>
-          )}
+          <div className="track-info" style={{ color: trackColor }}>
+            {track && <div className="track-name">{track.name}</div>}
+            {track && track.artists && (
+              <div className="artist-name">{track.artists[0].name}</div>
+            )}
+            {track && track.album && (
+              <div className="album-name">{track.album.name}</div>
+            )}
+          </div>
           {albumImageUrl && (
             <div className="album-wrapper">
               <img
@@ -106,7 +133,7 @@ class AlbumContainer extends React.Component {
                   <div
                     key={Math.random()}
                     className="color-square"
-                    style={{ backgroundColor: this.rgbToCssString(color) }}
+                    style={{ backgroundColor: this.rgbToCssString(color, 1) }}
                   />
                 );
               })}
