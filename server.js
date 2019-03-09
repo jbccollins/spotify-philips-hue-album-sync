@@ -3,9 +3,14 @@ import path from 'path';
 import fs from 'fs';
 import fetch from 'isomorphic-fetch';
 import chalk from 'chalk';
+import SpotifyWebApi from 'spotify-web-api-node';
 import {
   API_TRACK,
 } from './common/constants/urls';
+import {
+  SPOTIFY_CLIENT_ID,
+  SPOTIFY_CLIENT_SECRET,
+} from './common/constants/authorization';
 
 const app = express();
 const port = process.env.PORT || 5001;
@@ -13,29 +18,35 @@ const port = process.env.PORT || 5001;
 let currentTrackID = null;
 let currentTrackData = null;
 
-function handleErrors(response) {
-  if (!response.ok) {
-      throw Error(response.statusText);
-  }
-  return response;
+let spotifyAccessToken = null;
+
+// credentials are optional
+const spotifyApi = new SpotifyWebApi({
+  clientId: SPOTIFY_CLIENT_ID,
+  clientSecret: SPOTIFY_CLIENT_SECRET,
+  redirectUri: 'http://localhost:3000'
+});
+
+const setSpotifyAccessToken = async () => {
+  const  data = await spotifyApi.clientCredentialsGrant();
+  console.log('The access token expires in ' + data.body['expires_in']);
+  console.log('The access token is ' + data.body['access_token']);
+
+  // Save the access token so that it's used in future calls
+  spotifyApi.setAccessToken(data.body['access_token']);
+  spotifyAccessToken = spotifyApi.getAccessToken();  
 }
 
-const TOKEN = `
-BQASCKM-ySVvdIkBv-jLpRQk36nOCcWw9HM8MLLJpfKmXl2be_SJebBagNnazzuHIueUdlDqCw7fHZWoEh-gcfd72PMfXV6rwk4yhDyqdg-YZmiuABcmZHVD-XlkSZZxSifCwyVzKo3b3NFbVwdBXg
-`;
-
-const fetchSpotifyTrackData = () => {
-  fetch(`https://api.spotify.com/v1/tracks/${currentTrackID}`, {
-    method: 'GET',
-    headers: {
-      Accept: 'application/json',
-      Authorization: `Bearer ${TOKEN.trim()}`,
-      //'Content-Type': 'application/json'
+const fetchSpotifyTrackData = async () => {
+  try {
+    if (!spotifyAccessToken) {
+      await setSpotifyAccessToken();
     }
-  }).then(handleErrors)
-  .then(response => response.json())
-  .then(json => currentTrackData = json)
-  //.catch(error => console.log(error) );
+    const data = await spotifyApi.getTrack(currentTrackID);
+    currentTrackData = data['body'];
+  } catch (e) {
+    console.log(e);
+  }
 }
 
 const readSpotifyTrackID = (forceFetch) => {
@@ -48,7 +59,10 @@ const readSpotifyTrackID = (forceFetch) => {
 }
 
 readSpotifyTrackID(true);
+// Read the track id every two seconds
 setInterval(readSpotifyTrackID, 2000);
+// Refresh the access token every minute.
+setInterval(setSpotifyAccessToken, 60000);
 
 app.listen(port, () => console.log(`Listening on port ${port}`));
 

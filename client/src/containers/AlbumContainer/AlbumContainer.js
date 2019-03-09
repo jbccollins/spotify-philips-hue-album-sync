@@ -93,19 +93,53 @@ class AlbumContainer extends React.Component {
     const { albumImageUrl, colors } = this.state;
     console.log(colors);
     let backgroundStyle = {};
+    let space1BackgroundStyle = {};
+    let space2BackgroundStyle = {};
+    let space3BackgroundStyle = {};
+    let space4BackgroundStyle = {};
     let trackColor = "black";
     if (colors) {
       backgroundStyle = {
-        backgroundImage: `radial-gradient(${this.rgbToCssString(
-          colors[1],
-          0.7
-        )}, ${this.rgbToCssString(colors[0], 1)})`
-        //backgroundColor: `${this.rgbToCssString(colors[0], 0.9)}`
+        background: `
+          radial-gradient(
+            circle at bottom,
+            ${this.rgbToCssString(colors[1], 1)} 0,
+            ${this.rgbToCssString(colors[0], 1)} 100%
+          )
+        `
       };
       trackColor = this.invertColor(colors[0], true);
+      space1BackgroundStyle = {
+        background: `${this.rgbToCssString(
+          colors[0],
+          0.1
+        )} center / 200px 200px round`
+      };
+      space2BackgroundStyle = {
+        background: `${this.rgbToCssString(
+          colors[1],
+          0.1
+        )} center / 200px 200px round`
+      };
+      space3BackgroundStyle = {
+        background: `${this.rgbToCssString(
+          colors[2],
+          0.1
+        )} center / 200px 200px round`
+      };
+      space4BackgroundStyle = {
+        background: `${this.rgbToCssString(
+          colors[3],
+          0.1
+        )} center / 200px 200px round`
+      };
     }
     return (
       <div className="AlbumContainer" style={backgroundStyle}>
+        <div className="space stars1" style={space1BackgroundStyle} />
+        <div className="space stars2" style={space2BackgroundStyle} />
+        <div className="space stars3" style={space3BackgroundStyle} />
+        <div className="space stars4" style={space4BackgroundStyle} />
         <div className="content-wrapper">
           <div className="track-info" style={{ color: trackColor }}>
             {track && <div className="track-name">{track.name}</div>}

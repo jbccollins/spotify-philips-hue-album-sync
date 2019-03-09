@@ -2,41 +2,144 @@
     width: 100vw;
     height: 100vh;
     display: flex;
-    transition: background-color 0.5s ease;
+    //transition: background 0.5s ease;
+    overflow: hidden;
+    // -webkit-animation: Gradient 15s ease infinite;
+	// -moz-animation: Gradient 15s ease infinite;
+    // animation: Gradient 15s ease infinite;
+    // background-size: 400% 400% !important;
     .album-wrapper {
         border-radius: 8px;
         overflow: hidden;
-        border: 1px solid rgba(0, 0, 0, 0.5);
+        //border: 1px solid rgba(0, 0, 0, 0.5);
+        //box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
+        box-shadow: 0 14px 28px rgba(0,0,0,0.25), 0 10px 10px rgba(0,0,0,0.22);
+        width: calc(100vh / 2);
+        height: calc(100vh / 2);
+        position: relative;
+        margin-left: auto;
+        margin-right: auto;
+        img {
+            width: 100%;
+            height: 100%;;
+        }
     }
     .album-name, .track-name, .artist-name{
         text-align: center;
     }
+    .track-name {
+        font-size: 2em;
+    }
     .artist-name {
-        font-size: 24px;
+        font-size: 1.5em;
     }
     .album-name {
-        font-size: 16px;
+        font-size: 1em;
     }
     .track-info {
+        z-index: 10000;
         margin-bottom: 16px;
     }
-    .track-name {
-        font-size: 40px;
-    }
+
     .color-square {
         width: 50px;
         height: 50px;
+        //border: 1px solid rgba(255,255,255,0.3);
         border-radius: 8px;
-        border: 1px solid rgba(0, 0, 0, 0.5);
+        //border: 1px solid rgba(0, 0, 0, 0.5);
+        box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
+        margin-left: 2px;
+        margin-right: 2px;
     }
     .colors-container {
-        margin-top: 16px;
         display: flex;
-        justify-content: space-around;
-        padding: 0px 20%;
+        justify-content: space-between;
+        //padding: 0px 20%;
+        width: calc(100vh / 2);
+        margin: auto;
+        margin-top: 24px;
+        max-width: 272px; // 50 * 4 + 24 * 3
     }
     .content-wrapper {
+        display: flex;
+        flex-flow: column;
         margin: auto;
-        width: 640px;
+    }
+    .space {
+        //background: rgba(128, 0, 128, 0.1) center / 200px 200px round;
+        //border: 1px dashed purple;
+        //transition: background-color 0.5s ease;
+        bottom: 0;
+        left: 0;
+        position: absolute;
+        right: 0;
+        top: 0;
+    }
+      
+    .stars1 {
+        animation: space 180s ease-in-out infinite;
+    }
+      
+    .stars2 {
+        animation: space 240s ease-in-out infinite;
+    }
+      
+    .stars3 {
+        animation: space 300s ease-in-out infinite;
+    }
+
+    .stars4 {
+        animation: space 360s ease-in-out infinite;
     }
 }
+@keyframes space {
+    40% {
+      opacity: 0.75;
+    }
+    50% {
+      opacity: 0.25;
+    }
+    60% {
+      opacity: 0.75;
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+/*
+@-webkit-keyframes Gradient {
+	0% {
+		background-position: 0% 50%
+	}
+	50% {
+		background-position: 100% 50%
+	}
+	100% {
+		background-position: 0% 50%
+	}
+}
+
+@-moz-keyframes Gradient {
+	0% {
+		background-position: 0% 50%
+	}
+	50% {
+		background-position: 100% 50%
+	}
+	100% {
+		background-position: 0% 50%
+	}
+}
+
+@keyframes Gradient {
+	0% {
+		background-position: 0% 50%
+	}
+	50% {
+		background-position: 100% 50%
+	}
+	100% {
+		background-position: 0% 50%
+	}
+}
+*/
