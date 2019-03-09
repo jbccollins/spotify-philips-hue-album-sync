@@ -30,7 +30,7 @@ Open up `AlbumContainer.js`. You'll see some lines like
     this.setLamp(colors[1].x, colors[1].y, 4);
 ```
 
-The second parameter of the `setLamp` function is the lampID who's color will be set. Modify this to suit your needs.
+The last parameter of the `setLamp` function is the lampID who's color will be set. Modify this to suit your needs.
 
 ## Scripts
 | Script | Description |
