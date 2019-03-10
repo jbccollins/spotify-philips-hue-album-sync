@@ -15,17 +15,16 @@ const getLampUrl = lightNumber => {
   return URL;
 };
 
-const requestSetLamp = (lampData, lampUrl) => {
-  console.log(lampUrl);
-  return fetch(lampUrl, {
+const requestSetLamp = async (lampData, lampUrl) => {
+  await fetch(lampUrl, {
     method: "PUT",
     body: JSON.stringify(lampData),
     headers: {
       Accept: "application/json"
     }
-  })
-    .then(res => res.json())
-    .then(json => console.log(json));
+  });
+  //const json = await res.json();
+  //console.log(json);
 };
 
 export { requestSetLamp, getLampUrl };

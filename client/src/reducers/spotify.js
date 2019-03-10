@@ -28,7 +28,7 @@ const track = (state = initialTrackState, action) => {
     case TRACK_ERRORED:
       return {
         ...state,
-        track: [],
+        track: null,
         fetching: false,
         error: true
       };

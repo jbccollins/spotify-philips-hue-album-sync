@@ -26,7 +26,7 @@ function cie_to_rgb(t, o, a) {
   );
 }
 
-function rgb_to_cie(t, o, a) {
+function rgbToCie(t, o, a) {
   var i =
       0.664511 *
         (t = t > 0.04045 ? Math.pow((t + 0.055) / 1.055, 2.4) : t / 12.92) +
@@ -41,4 +41,18 @@ function rgb_to_cie(t, o, a) {
   return isNaN(h) && (h = 0), isNaN(n) && (n = 0), [h, n];
 }
 
-export { cie_to_rgb, rgb_to_cie };
+const getLuminosity = (r, g, b) => {
+  return Math.sqrt(0.241 * r + 0.691 * g + 0.068 * b);
+};
+
+// Trial and error got this number. Hues close to this luminosity look good on the hue lights.
+const MIDDLE_LUMINOSITY = 12.5;
+
+const luminosityDistanceSort = arr =>
+  arr.sort(
+    ({ luminosity: luminosity1 }, { luminosity: luminosity2 }) =>
+      Math.abs(luminosity1 - MIDDLE_LUMINOSITY) -
+      Math.abs(luminosity2 - MIDDLE_LUMINOSITY)
+  );
+
+export { cie_to_rgb, rgbToCie, getLuminosity, luminosityDistanceSort };
