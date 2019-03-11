@@ -6,7 +6,10 @@
 
 ## Installation
 
+
 ```bash
+brew install watch
+pip install osascript
 yarn rebuild
 ```
 
@@ -22,15 +25,17 @@ yarn poll-spotify
 ```
 
 Open up `/common/constants/authorization.js` and change the variables in that file to match your Philips and Spotify config. Note that the `SPOTIFY_CLIENT_SECRET` variable MUST be passed to your app as an environment variable.
+If you don't already have a Spotify developer account you can get one here: https://developer.spotify.com/dashboard/applications
 
-Open up `AlbumContainer.js`. You'll see some lines like
+Open up `AlbumContainer.js`. You'll see a line like
 
 ```javascript
-    this.setLamp(colors[0].x, colors[0].y, 1);
-    this.setLamp(colors[1].x, colors[1].y, 4);
+    const lampIds = [1, 4];
 ```
 
-The last parameter of the `setLamp` function is the lampID who's color will be set. Modify this to suit your needs.
+This is the array of Philips Hue Lamp ids. Add up to four ids to this array. The order of the ids in this array is the order in which hues will be prioritized.
+
+Open up `createLog.applescript` and change the log file path to whatever floats your boat.
 
 ## Scripts
 | Script | Description |
