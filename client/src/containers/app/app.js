@@ -3,8 +3,12 @@ import PropTypes from "prop-types";
 import AlbumContainer from "containers/AlbumContainer";
 import { bindActionCreators } from "redux";
 import { connect } from "react-redux";
-import { fetchTrack } from "actions/spotify";
 import { withStyles } from "@material-ui/core/styles";
+import SpotifyRedirection from "components/SpotifyRedirection";
+import SpotifyCallbackContainer from "containers/SpotifyCallbackContainer";
+import { Route, Switch } from "react-router-dom";
+import { CALLBACK } from "common/constants/urls";
+
 import "./app.scss";
 
 const styles = {
@@ -14,16 +18,17 @@ const styles = {
 };
 
 class App extends React.Component {
-  componentDidMount() {
-    const { fetchTrack } = this.props;
-    fetchTrack();
-    setInterval(fetchTrack, 3000);
-  }
   render() {
-    const { classes } = this.props;
+    const { classes, spotifyTokens } = this.props;
     return (
       <div className={`App ${classes.root}`}>
-        <AlbumContainer />
+        <Switch>
+          {spotifyTokens && (
+            <Route exact path="/app" component={AlbumContainer} />
+          )}
+          <Route path={CALLBACK} component={SpotifyCallbackContainer} />
+          <Route exact path="/*" component={SpotifyRedirection} />
+        </Switch>
       </div>
     );
   }
@@ -34,16 +39,10 @@ App.propTypes = {
 };
 
 const mapStateToProps = state => ({
-  track: state.track
+  spotifyTokens: state.spotifyTokens
 });
 
-const mapDispatchToProps = dispatch =>
-  bindActionCreators(
-    {
-      fetchTrack
-    },
-    dispatch
-  );
+const mapDispatchToProps = dispatch => bindActionCreators({}, dispatch);
 
 export default connect(
   mapStateToProps,

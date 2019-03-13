@@ -4,13 +4,24 @@ import fs from 'fs';
 import fetch from 'isomorphic-fetch';
 import chalk from 'chalk';
 import SpotifyWebApi from 'spotify-web-api-node';
+import queryString from 'query-string';
+var request = require('request');
+var cookieParser = require('cookie-parser');
 import {
   API_TRACK,
+  API_LOGIN,
+  API_AUTHENTICATE,
+  SPOTIFY_AUTHORIZE,
+  SPOTIFY_API_TOKEN,
+  API_REFRESH_SPOTIFY_TOKEN,
 } from './common/constants/urls';
 import {
   SPOTIFY_CLIENT_ID,
+  LOCAL_SPOTIFY_REDIRECT_URI,
+  PRODUCTION_SPOTIFY_REDIRECT_URI,
 } from './common/constants/authorization';
 
+const SPOTIFY_REDIRECT_URI = process.env.NODE_ENV === "production" ? PRODUCTION_SPOTIFY_REDIRECT_URI : LOCAL_SPOTIFY_REDIRECT_URI;
 const SPOTIFY_CLIENT_SECRET = process.env.SPOTIFY_CLIENT_SECRET;
 
 if (!SPOTIFY_CLIENT_SECRET) {
@@ -20,65 +31,101 @@ if (!SPOTIFY_CLIENT_SECRET) {
 }
 
 const app = express();
+
 const port = process.env.PORT || 5001;
 
-let currentTrackID = null;
-let currentTrackData = null;
+const generateRandomString = function(length) {
+  var text = '';
+  var possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
 
-let spotifyAccessToken = null;
-
-// credentials are optional
-const spotifyApi = new SpotifyWebApi({
-  clientId: SPOTIFY_CLIENT_ID,
-  clientSecret: SPOTIFY_CLIENT_SECRET,
-  redirectUri: 'http://localhost:3000'
-});
-
-const setSpotifyAccessToken = async () => {
-  const  data = await spotifyApi.clientCredentialsGrant();
-  console.log('The access token expires in ' + data.body['expires_in']);
-  console.log('The access token is ' + data.body['access_token']);
-
-  // Save the access token so that it's used in future calls
-  spotifyApi.setAccessToken(data.body['access_token']);
-  spotifyAccessToken = spotifyApi.getAccessToken();  
-}
-
-const fetchSpotifyTrackData = async () => {
-  try {
-    if (!spotifyAccessToken) {
-      await setSpotifyAccessToken();
-    }
-    const data = await spotifyApi.getTrack(currentTrackID);
-    currentTrackData = data['body'];
-  } catch (e) {
-    console.log(e);
+  for (var i = 0; i < length; i++) {
+    text += possible.charAt(Math.floor(Math.random() * possible.length));
   }
-}
+  return text;
+};
 
-const readSpotifyTrackID = (forceFetch) => {
-  const contents = fs.readFileSync('songIdLog.txt', 'utf8');
-  const [spotify, track, trackID] = contents.split(':');
-  if (forceFetch || trackID !== currentTrackID) {
-    currentTrackID = trackID;
-    fetchSpotifyTrackData();
-  }
-}
-
-readSpotifyTrackID(true);
-// Read the track id every two seconds
-setInterval(readSpotifyTrackID, 2000);
-// Refresh the access token every minute.
-setInterval(setSpotifyAccessToken, 60000);
+let stateKey = 'spotify_auth_state';
 
 app.listen(port, () => console.log(`Listening on port ${port}`));
 
-app.use(express.static(__dirname + '/client/build'));
+app.get(API_LOGIN, (req, res) => {
+  const state = generateRandomString(16);
+  res.cookie(stateKey, state);
 
-app.get(API_TRACK, (req, res) => {
-  res.send(currentTrackData);
+  // your application requests authorization
+  const scope = 'user-read-private user-read-email user-library-read user-read-currently-playing';
+  const stringifiedParams = queryString.stringify({
+    response_type: 'code',
+    client_id: SPOTIFY_CLIENT_ID,
+    scope: scope,
+    redirect_uri: SPOTIFY_REDIRECT_URI,
+    state: state
+  });
+  res.send({
+    spotifyUrl: `${SPOTIFY_AUTHORIZE}?${stringifiedParams}`
+  })
 });
 
-app.get('/', (req, res) => {
+app.get(API_AUTHENTICATE, (req, res) => {
+  const { code } = req.query;
+
+  const authOptions = {
+    url: SPOTIFY_API_TOKEN,
+    form: {
+      code: code,
+      redirect_uri: SPOTIFY_REDIRECT_URI,
+      grant_type: 'authorization_code'
+    },
+    headers: {
+      'Authorization': 'Basic ' + (new Buffer(SPOTIFY_CLIENT_ID + ':' + SPOTIFY_CLIENT_SECRET).toString('base64'))
+    },
+    json: true
+  };
+
+  request.post(authOptions, function(error, response, body) {
+    if (!error && response.statusCode === 200) {
+      const spotifyAccessToken = body.access_token;
+      const spotifyRefreshToken = body.refresh_token;
+      res.send({
+        error: false,
+        spotifyAccessToken,
+        spotifyRefreshToken,
+      })
+    } else {
+      res.send({
+        error: true,
+        errorMessage: "Invalid Spotify Token"
+      })
+    }
+  });
+});
+
+app.get(API_REFRESH_SPOTIFY_TOKEN, (req, res) => {
+
+  // requesting access token from refresh token
+  const { spotifyRefreshToken } = req.query;
+  const authOptions = {
+    url: SPOTIFY_API_TOKEN,
+    headers: { 'Authorization': 'Basic ' + (new Buffer(SPOTIFY_CLIENT_ID + ':' + SPOTIFY_CLIENT_SECRET).toString('base64')) },
+    form: {
+      grant_type: 'refresh_token',
+      refresh_token: spotifyRefreshToken
+    },
+    json: true
+  };
+
+  request.post(authOptions, function(error, response, body) {
+    if (!error && response.statusCode === 200) {
+      const spotifyAccessToken = body.access_token;
+      res.send({
+        spotifyAccessToken
+      });
+    }
+  });
+});
+
+app.use(express.static(__dirname + '/client/build'));
+
+app.get('/*', (req, res) => {
   res.sendFile(path.join(__dirname + '/client/build/index.html'));
 });

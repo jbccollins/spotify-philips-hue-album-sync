@@ -7,13 +7,14 @@ import {
   getLuminosity,
   luminosityDistanceSort
 } from "utilities/colorConverter";
+import { fetchTrack, refreshSpotifyToken } from "actions/spotify";
 import ColorThief from "color-thief";
 import { requestSetLamp, getLampUrl } from "actions/philipshue";
 import "./AlbumContainer.scss";
 
 const colorThief = new ColorThief();
 const numberOfColors = 4;
-const lampIds = [1, 4];
+const lampIds = [1, 2, 3, 4];
 function padZero(str, len) {
   len = len || 2;
   var zeros = new Array(len).join("0");
@@ -34,8 +35,20 @@ class AlbumContainer extends React.Component {
   state = {
     albumImageUrl: null,
     colors: null,
-    luminosityOrder: null
+    luminosityOrder: null,
+    lamp1Interval: null,
+    lamp2Interval: null,
+    lamp3Interval: null,
+    lamp4Interval: null
   };
+
+  componentDidMount() {
+    const { fetchTrack, refreshSpotifyToken } = this.props;
+    fetchTrack();
+    setInterval(fetchTrack, 3000);
+    // Refresh the access token at more than once an hour
+    setInterval(refreshSpotifyToken, 3500000);
+  }
 
   setLamp = async (x, y, lightNumber) => {
     const myX = Number(x);
@@ -68,6 +81,16 @@ class AlbumContainer extends React.Component {
   };
 
   handleImageLoad = async () => {
+    const {
+      lamp1Interval,
+      lamp2Interval,
+      lamp3Interval,
+      lamp4Interval
+    } = this.state;
+    clearInterval(lamp1Interval);
+    clearInterval(lamp2Interval);
+    clearInterval(lamp3Interval);
+    clearInterval(lamp4Interval);
     let colors = [];
     for (let i = 0; i < numberOfColors; i++) {
       const [r, g, b] = this.getRgb(i);
@@ -83,44 +106,69 @@ class AlbumContainer extends React.Component {
         y
       });
     }
+
     // clone colors for in place sort
     const luminositySortedColors = luminosityDistanceSort(colors.map(c => c));
     const luminosityOrder = luminositySortedColors.map(({ index }) => index);
-    this.setState({ colors, luminosityOrder });
-    console.log(
-      this.props.track.name,
-      colors,
-      luminosityOrder,
-      luminositySortedColors
-    );
-    if (lampIds.length > 0) {
+
+    const INTERVAL_AMOUNT = 20000;
+    const lamp1Func = async () => {
       await this.setLamp(
         colors[luminosityOrder[0]].x,
         colors[luminosityOrder[0]].y,
         lampIds[0]
       );
-    }
-    if (lampIds.length > 1) {
+    };
+    const lamp2Func = async () => {
       await this.setLamp(
         colors[luminosityOrder[1]].x,
         colors[luminosityOrder[1]].y,
         lampIds[1]
       );
-    }
-    if (lampIds.length > 2) {
+    };
+    const lamp3Func = async () => {
       await this.setLamp(
         colors[luminosityOrder[2]].x,
         colors[luminosityOrder[2]].y,
         lampIds[2]
       );
-    }
-    if (lampIds.length > 3) {
+    };
+    const lamp4Func = async () => {
       await this.setLamp(
         colors[luminosityOrder[3]].x,
         colors[luminosityOrder[3]].y,
         lampIds[3]
       );
+    };
+    let newLamp1Interval = null;
+    let newLamp2Interval = null;
+    let newLamp3Interval = null;
+    let newLamp4Interval = null;
+
+    if (lampIds.length > 0) {
+      await lamp1Func();
+      newLamp1Interval = setInterval(lamp1Func, INTERVAL_AMOUNT);
     }
+    if (lampIds.length > 1) {
+      setTimeout(lamp2Func, 250);
+      newLamp2Interval = setInterval(lamp2Func, INTERVAL_AMOUNT + 1000);
+    }
+    if (lampIds.length > 2) {
+      setTimeout(lamp3Func, 500);
+      newLamp3Interval = setInterval(lamp3Func, INTERVAL_AMOUNT + 2000);
+    }
+    if (lampIds.length > 3) {
+      setTimeout(lamp4Func, 750);
+      newLamp4Interval = setInterval(lamp4Func, INTERVAL_AMOUNT + 3000);
+    }
+    this.setState({
+      lamp1Interval: newLamp1Interval,
+      lamp2Interval: newLamp2Interval,
+      lamp3Interval: newLamp3Interval,
+      lamp4Interval: newLamp4Interval,
+      colors,
+      luminosityOrder
+    });
   };
 
   static getDerivedStateFromProps(nextProps, prevState) {
@@ -132,7 +180,6 @@ class AlbumContainer extends React.Component {
       track.album.images.length > 2
     ) {
       const url = track.album.images[0].url;
-      //console.log(url, prevState.albumImageUrl);
       if (url !== prevState.albumImageUrl) {
         return { albumImageUrl: url };
       }
@@ -197,6 +244,12 @@ class AlbumContainer extends React.Component {
         <div className="space stars3" style={space3BackgroundStyle} />
         <div className="space stars4" style={space4BackgroundStyle} />
         <div className="content-wrapper">
+          {!track && (
+            <div className="no-track">
+              Looks like you aren't currently playing anything on Spotify. Start
+              playing a song and this page will become pretty :)
+            </div>
+          )}
           <div className="track-info" style={{ color: trackColor }}>
             {track && <div className="track-name">{track.name}</div>}
             {track && track.artists && (
@@ -209,6 +262,7 @@ class AlbumContainer extends React.Component {
           {albumImageUrl && (
             <div className="album-wrapper">
               <img
+                alt="album art"
                 ref={r => (this.img = r)}
                 crossOrigin="anonymous"
                 onLoad={this.handleImageLoad}
@@ -220,10 +274,9 @@ class AlbumContainer extends React.Component {
             <div className="colors-container">
               {colors.map(color => {
                 const luminosityIndex = luminosityOrder.indexOf(color.index);
-                console.log(color.index, luminosityIndex);
                 let isActiveLamp = false;
                 let lampIconClass = "white";
-                if (luminosityIndex < lampIds.length) {
+                if (luminosityIndex < lampIds.length && lampIds.length < 4) {
                   isActiveLamp = true;
                   if (this.invertColor(color, true) === "#000000") {
                     lampIconClass = "black";
@@ -257,7 +310,14 @@ const mapStateToProps = state => ({
   track: state.track.track
 });
 
-const mapDispatchToProps = dispatch => bindActionCreators({}, dispatch);
+const mapDispatchToProps = dispatch =>
+  bindActionCreators(
+    {
+      fetchTrack,
+      refreshSpotifyToken
+    },
+    dispatch
+  );
 
 export default connect(
   mapStateToProps,

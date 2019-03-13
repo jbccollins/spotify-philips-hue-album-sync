@@ -23,8 +23,6 @@ const requestSetLamp = async (lampData, lampUrl) => {
       Accept: "application/json"
     }
   });
-  //const json = await res.json();
-  //console.log(json);
 };
 
 export { requestSetLamp, getLampUrl };

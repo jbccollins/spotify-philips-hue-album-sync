@@ -1,7 +1,9 @@
 import {
   TRACK_REQUESTED,
   TRACK_RECEIVED,
-  TRACK_ERRORED
+  TRACK_ERRORED,
+  SET_SPOTIFY_TOKENS,
+  REFRESH_SPOTIFY_TOKEN
 } from "actions/spotify";
 
 const initialTrackState = {
@@ -37,4 +39,14 @@ const track = (state = initialTrackState, action) => {
   }
 };
 
-export { track };
+const spotifyTokens = (state = null, action) => {
+  switch (action.type) {
+    case REFRESH_SPOTIFY_TOKEN:
+    case SET_SPOTIFY_TOKENS:
+      return action.payload.spotifyTokens;
+    default:
+      return state;
+  }
+};
+
+export { track, spotifyTokens };
