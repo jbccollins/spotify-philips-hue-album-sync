@@ -30,7 +30,7 @@ Edit these to your preference.
 
 `numberOfColors` determines how many colors to pull out of the album art.
 
-`lampIds` is the array of Philips Hue Lamp ids. Add up to four ids to this array. The order of the ids in this array is the order in which hues will be prioritized. This project will attempt to give higher priority to colors that "work well" with the range of colors that Philips Hue Lamps support. Typically such colors are as far from black or white as possible.
+`lampIds` is the array of Philips Hue light ids. Add up to four ids to this array. The order of the ids in this array is the order in which hues will be prioritized. This project will attempt to give higher priority to colors that "work well" with the range of colors that Philips Hue lights support. Typically such colors are as far from black or white as possible.
 
 ## Scripts
 | Script | Description |
