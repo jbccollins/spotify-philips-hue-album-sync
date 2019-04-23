@@ -16,11 +16,6 @@ yarn rebuild
 SPOTIFY_CLIENT_SECRET=***** yarn dev
 ```
 
-In a separate terminal window run
-```bash
-yarn poll-spotify
-```
-
 Open up `/common/constants/authorization.js` and change the variables in that file to match your Philips and Spotify config. Note that the `SPOTIFY_CLIENT_SECRET` variable MUST be passed to your app as an environment variable.
 If you don't already have a Spotify developer account you can get one here: https://developer.spotify.com/dashboard/applications
 
