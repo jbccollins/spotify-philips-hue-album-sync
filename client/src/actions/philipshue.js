@@ -5,7 +5,7 @@ import {
 } from "common/constants/authorization";
 const getLampUrl = lightNumber => {
   const URL =
-    "https://" +
+    "http://" +
     PHILIPS_HUB_IP +
     "/api/" +
     PHILIPS_HUB_USERNAME +
