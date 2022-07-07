@@ -38,7 +38,7 @@
     "jest": "23.6.0",
     "leaflet": "^1.4.0",
     "lint-staged": "^8.1.0",
-    "moment": "^2.22.2",
+    "moment": "^2.29.4",
     "node-sass": "^4.10.0",
     "object-assign": "4.1.1",
     "postcss-flexbugs-fixes": "4.1.0",
